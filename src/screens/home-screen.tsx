@@ -31,7 +31,7 @@ const HomeScreen: Screen<"Home"> = () => {
   const showTaskInputAlert = (editedTask?: Task) => {
     const isEditMode = !!editedTask;
     Alert.prompt(
-      isEditMode ? "Edit tugas" : "Tambah tugas",
+      isEditMode ? "Edit tugas" : "Buat tugas baru",
       undefined,
       [
         {

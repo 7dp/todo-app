@@ -11,6 +11,10 @@ import {
 } from "react-native-safe-area-context";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
+import dayjs from "dayjs";
+import "dayjs/locale/id";
+
+dayjs.locale("id");
 
 const Stack = createNativeStackNavigator<ScreenParams>();
 

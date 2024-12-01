@@ -19,6 +19,42 @@ const taskSlice = createSlice({
     addTask: (state, action: PayloadAction<Task>) => {
       state.tasks.push(action.payload);
     },
+    removeTask: (state, { payload }: PayloadAction<Task>) => {
+      const targetIndex = state.tasks.findIndex(
+        (item) => item.id === payload.id
+      );
+      if (targetIndex > -1) {
+        state.tasks.splice(targetIndex, 1);
+      }
+    },
+    setReminder: (state, { payload }: PayloadAction<Task>) => {
+      const target = state.tasks.find((item) => item.id === payload.id);
+      if (!target) {
+        return;
+      }
+      target.remindAt = payload.remindAt;
+    },
+    removeReminder: (state, { payload }: PayloadAction<Task>) => {
+      const target = state.tasks.find((item) => item.id === payload.id);
+      if (!target) {
+        return;
+      }
+      target.remindAt = "";
+    },
+    setName: (state, { payload }: PayloadAction<Task>) => {
+      const target = state.tasks.find((item) => item.id === payload.id);
+      if (!target) {
+        return;
+      }
+      target.name = payload.name;
+    },
+    toggleTaskStatus: (state, { payload }: PayloadAction<Task>) => {
+      const target = state.tasks.find((item) => item.id === payload.id);
+      if (!target) {
+        return;
+      }
+      target.isCompleted = !target.isCompleted;
+    },
   },
 });
 
@@ -29,4 +65,4 @@ const selectTasks = (state: CurrentRootState) => state.task.tasks;
 const taskReducer = taskSlice.reducer;
 const taskActions = taskSlice.actions;
 
-export { taskActions, taskReducer, taskSlice };
+export { selectTasks, taskActions, taskReducer, taskSlice };

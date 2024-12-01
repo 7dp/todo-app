@@ -1,9 +1,10 @@
-import notifee from "@notifee/react-native";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { CurrentRootState } from "../types";
 
+import { scheduleNotification, unscheduleNotification } from "@/services";
 import { Task } from "@/types";
+import dayjs from "dayjs";
 
 type InitialState = {
   tasks: Task[];
@@ -26,7 +27,7 @@ const taskSlice = createSlice({
       );
       if (targetIndex > -1) {
         state.tasks.splice(targetIndex, 1);
-        notifee.cancelNotification(payload.id);
+        unscheduleNotification(payload.id);
       }
     },
     setReminder: (state, { payload }: PayloadAction<Task>) => {
@@ -35,6 +36,13 @@ const taskSlice = createSlice({
         return;
       }
       target.remindAt = payload.remindAt;
+      const reminder = dayjs(payload.remindAt);
+      const now = dayjs();
+      if (target.isCompleted || reminder.isBefore(now)) {
+        unscheduleNotification(target.id);
+        return;
+      }
+      scheduleNotification(target);
     },
     removeReminder: (state, { payload }: PayloadAction<Task>) => {
       const target = state.tasks.find((item) => item.id === payload.id);
@@ -42,7 +50,7 @@ const taskSlice = createSlice({
         return;
       }
       target.remindAt = "";
-      notifee.cancelNotification(target.id);
+      unscheduleNotification(target.id);
     },
     setName: (state, { payload }: PayloadAction<Task>) => {
       const target = state.tasks.find((item) => item.id === payload.id);
@@ -57,8 +65,16 @@ const taskSlice = createSlice({
         return;
       }
       target.isCompleted = !target.isCompleted;
+
       if (target.isCompleted) {
-        notifee.cancelNotification(target.id);
+        unscheduleNotification(target.id);
+        return;
+      }
+
+      const reminder = dayjs(target.remindAt);
+      const now = dayjs();
+      if (!target.isCompleted && reminder.isAfter(now)) {
+        scheduleNotification(target);
       }
     },
   },

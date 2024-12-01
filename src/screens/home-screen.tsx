@@ -2,7 +2,7 @@ import { useAppDispatch, useAppSelector } from "@/store";
 import { selectTasks, taskActions } from "@/store/slices";
 import { Screen, Task } from "@/types";
 import { Feather } from "@expo/vector-icons";
-import notifee, { TimestampTrigger, TriggerType } from "@notifee/react-native";
+import notifee from "@notifee/react-native";
 import dayjs from "dayjs";
 import React, { useState } from "react";
 import {
@@ -67,37 +67,6 @@ const HomeScreen: Screen<"Home"> = () => {
       isEditMode ? editedTask.name : undefined
     );
   };
-
-  async function createTriggerNotification(clickedTask: Task) {
-    if (!clickedTask.remindAt) {
-      return;
-    }
-    const trigger: TimestampTrigger = {
-      type: TriggerType.TIMESTAMP,
-      timestamp: dayjs(clickedTask.remindAt).valueOf(),
-    };
-
-    await notifee.createTriggerNotification(
-      {
-        id: clickedTask.id,
-        title: clickedTask.name,
-        body: `Hari ini pada ${dayjs(clickedTask.remindAt).format("HH.mm")}`,
-        android: {
-          channelId: "your-channel-id",
-        },
-        ios: {
-          sound: "default",
-          foregroundPresentationOptions: {
-            badge: true,
-            banner: true,
-            list: true,
-            sound: true,
-          },
-        },
-      },
-      trigger
-    );
-  }
 
   const handleReminder = async () => {
     try {
@@ -186,7 +155,6 @@ const HomeScreen: Screen<"Home"> = () => {
           }
           const editedTask: Task = { ...task, remindAt: dayjs(date).format() };
           dispatch(taskActions.setReminder(editedTask));
-          createTriggerNotification(editedTask);
           setEditingReminder(false);
         }}
         onCancel={() => {

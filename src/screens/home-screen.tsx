@@ -2,6 +2,7 @@ import { useAppDispatch, useAppSelector } from "@/store";
 import { selectTasks, taskActions } from "@/store/slices";
 import { Screen, Task } from "@/types";
 import { Feather } from "@expo/vector-icons";
+import notifee, { TimestampTrigger, TriggerType } from "@notifee/react-native";
 import dayjs from "dayjs";
 import React, { useState } from "react";
 import {
@@ -67,6 +68,46 @@ const HomeScreen: Screen<"Home"> = () => {
     );
   };
 
+  async function createTriggerNotification(clickedTask: Task) {
+    if (!clickedTask.remindAt) {
+      return;
+    }
+    const trigger: TimestampTrigger = {
+      type: TriggerType.TIMESTAMP,
+      timestamp: dayjs(clickedTask.remindAt).valueOf(),
+    };
+
+    await notifee.createTriggerNotification(
+      {
+        id: clickedTask.id,
+        title: clickedTask.name,
+        body: `Hari ini pada ${dayjs(clickedTask.remindAt).format("HH.mm")}`,
+        android: {
+          channelId: "your-channel-id",
+        },
+        ios: {
+          sound: "default",
+          foregroundPresentationOptions: {
+            badge: true,
+            banner: true,
+            list: true,
+            sound: true,
+          },
+        },
+      },
+      trigger
+    );
+  }
+
+  const handleReminder = async () => {
+    try {
+      await notifee.requestPermission();
+      setEditingReminder(true);
+    } catch (error) {
+      console.log("handleReminder() error", error);
+    }
+  };
+
   const renderItem = ({ item }: ListRenderItemInfo<Task>) => {
     return (
       <TaskItem
@@ -96,7 +137,7 @@ const HomeScreen: Screen<"Home"> = () => {
               } else if (buttonIndex === 1) {
                 showTaskInputAlert(clickedTask);
               } else if (buttonIndex === 2) {
-                setEditingReminder(true);
+                handleReminder();
               } else if (buttonIndex === 3) {
                 dispatch(taskActions.removeReminder(clickedTask));
               } else if (buttonIndex === 4) {
@@ -121,7 +162,7 @@ const HomeScreen: Screen<"Home"> = () => {
     <SafeAreaView edges={["bottom", "left", "right"]} style={style.root}>
       <FlatList
         data={tasks}
-        keyExtractor={(item) => item.createdAt}
+        keyExtractor={(item) => item.id}
         renderItem={renderItem}
         ItemSeparatorComponent={renderSeparator}
         contentContainerStyle={style.list}
@@ -145,6 +186,7 @@ const HomeScreen: Screen<"Home"> = () => {
           }
           const editedTask: Task = { ...task, remindAt: dayjs(date).format() };
           dispatch(taskActions.setReminder(editedTask));
+          createTriggerNotification(editedTask);
           setEditingReminder(false);
         }}
         onCancel={() => {

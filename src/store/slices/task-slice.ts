@@ -1,3 +1,4 @@
+import notifee from "@notifee/react-native";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { CurrentRootState } from "../types";
@@ -25,6 +26,7 @@ const taskSlice = createSlice({
       );
       if (targetIndex > -1) {
         state.tasks.splice(targetIndex, 1);
+        notifee.cancelNotification(payload.id);
       }
     },
     setReminder: (state, { payload }: PayloadAction<Task>) => {
@@ -40,6 +42,7 @@ const taskSlice = createSlice({
         return;
       }
       target.remindAt = "";
+      notifee.cancelNotification(target.id);
     },
     setName: (state, { payload }: PayloadAction<Task>) => {
       const target = state.tasks.find((item) => item.id === payload.id);
@@ -54,6 +57,9 @@ const taskSlice = createSlice({
         return;
       }
       target.isCompleted = !target.isCompleted;
+      if (target.isCompleted) {
+        notifee.cancelNotification(target.id);
+      }
     },
   },
 });

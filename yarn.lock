@@ -1348,6 +1348,11 @@
   dependencies:
     semver "^7.3.5"
 
+"@op-engineering/op-sqlite@^11.2.3":
+  version "11.2.3"
+  resolved "https://registry.yarnpkg.com/@op-engineering/op-sqlite/-/op-sqlite-11.2.3.tgz#5c6328237f5c37b6cb8ba9d81b7e6c61f694b6b8"
+  integrity sha512-hbPPo/dCeXsEy/Lls0p3qCaUQT9gOIV0UwFZ8bUazKMP79SNfMu1amAUK/irYkJ6/dOgIFI/QG5kUCe5sNpxGg==
+
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
